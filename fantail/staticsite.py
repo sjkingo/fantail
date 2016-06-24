@@ -21,8 +21,11 @@ class StaticSite(object):
     as an environment.
     """
 
-    # Absolute path to this environment
+    # Absolute path to this site
     path = None
+
+    # Absolute path to templates in this package (not site)
+    pkg_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
 
     # Base template to use if no template: header is specified in a page.
     base_template_name = 'base.html'
@@ -55,25 +58,45 @@ class StaticSite(object):
 
     def init_site(self):
         """
-        Checks the environment to ensure it contains the required directories.
-        Creates them if not. The output directory is left alone until the
-        site is successfully generated to prevent any loss if the generation
-        fails.
+        Creates a new site by creating the required directories and populating
+        templates from the packaged defaults. Will error out if the site
+        directory already exists.
+
+        The calling user must have permission to create directories at the
+        path given.
         """
-        for reldir in [self.template_dir, self.pages_dir]:
-            os.makedirs(reldir, exist_ok=True)
+
+        try:
+            os.makedirs(self.path) # site root
+        except FileExistsError:
+            logging.error('Site at {} already exists. Please remove it ' \
+                          'before trying again.'.format(self.path))
+            exit(2)
+
+        os.makedirs(self.pages_dir)
+        shutil.copytree(self.pkg_templates_path, self.template_dir)
         print('Created new site at ' + self.path)
 
     def build_site(self):
-        page_map = self.map_pages()
-        self.write_output(page_map)
+        """
+        Builds the site and writes output only if the build is successful.
+        It is safe to call this over and over.
+        """
+        page_map = self._map_pages()
+        self._write_output(page_map)
 
     def clean_site(self):
+        """
+        Cleans the site by removing the output directory only.
+        Does not delete any pages or templates.
+        """
         if os.path.isdir(self.output_dir):
+            logging.info('Removed output directory from ' + self.path)
             shutil.rmtree(self.output_dir)
-        print('Removed output directory from ' + self.path)
+        else:
+            logging.info('Nothing to do.')
 
-    def map_pages(self):
+    def _map_pages(self):
         """
         Creates a dictionary of input_file -> output_file of each page in the
         pages directory. The directory structure is maintained with each
@@ -110,7 +133,7 @@ class StaticSite(object):
 
         return output_pages
 
-    def generate_pages(self, page_map, output_dir):
+    def _generate_pages(self, page_map, output_dir):
         """
         Takes a page map as returned by map_pages() and generates each page
         using the templates loaded with Jinja2.
@@ -152,13 +175,13 @@ class StaticSite(object):
                 fp.write(os.linesep)
             logging.debug('Wrote {0} from {1}'.format(path, input_filename))
 
-    def write_output(self, page_map):
+    def _write_output(self, page_map):
         """
         Generate the output pages to a temporary directory so not
         to trample over any existing pages if there is a failure.
         """
         with TemporaryDirectory() as temp_dir:
-            self.generate_pages(page_map, temp_dir)
+            self._generate_pages(page_map, temp_dir)
             # If we get here without an exception, the full site was generated
             # successfully, so move the output files over from the temporary
             shutil.rmtree(self.output_dir, ignore_errors=True)
