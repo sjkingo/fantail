@@ -7,10 +7,6 @@ import shutil
 import subprocess
 from tempfile import TemporaryDirectory
 
-# Fix path for following package imports
-import sys
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
-
 from fantail import __version__
 from fantail.plugins import registry as plugin_registry
 

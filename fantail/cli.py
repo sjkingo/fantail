@@ -1,6 +1,6 @@
 import argparse
 
-from staticsite import StaticSite
+from fantail.staticsite import StaticSite
 
 def parse_args():
     parser = argparse.ArgumentParser(description='fantail is a static site generator')

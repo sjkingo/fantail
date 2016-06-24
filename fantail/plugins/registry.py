@@ -64,7 +64,7 @@ def load_plugins():
     for f in os.listdir(os.path.dirname(__file__)):
         if f.startswith('plugin_') and f.endswith('.py'):
             module_name = os.path.splitext(f)[0]
-            dotted_path = 'plugins.' + module_name
+            dotted_path = 'fantail.plugins.' + module_name
             module = importlib.import_module(dotted_path)
             logging.debug('Imported plugin module `{}`'.format(dotted_path))
 
