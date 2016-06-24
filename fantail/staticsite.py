@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..'
 
 from fantail import __version__
 
-class StaticSiteEnvironment(object):
+class StaticSite(object):
     """
     This class represents a static site environment. An environment
     contains directories for templates, pages and an output directory.
@@ -39,7 +39,7 @@ class StaticSiteEnvironment(object):
         logging.debug('Welcome from ' + repr(self))
 
     def __repr__(self):
-        return '<StaticSiteEnvironment "{path}">'.format(path=self.path)
+        return '<StaticSite "{path}">'.format(path=self.path)
 
     @property
     def template_dir(self):
@@ -53,7 +53,7 @@ class StaticSiteEnvironment(object):
     def output_dir(self):
         return os.path.join(self.path, 'output')
 
-    def init_env(self):
+    def init_site(self):
         """
         Checks the environment to ensure it contains the required directories.
         Creates them if not. The output directory is left alone until the
@@ -62,13 +62,13 @@ class StaticSiteEnvironment(object):
         """
         for reldir in [self.template_dir, self.pages_dir]:
             os.makedirs(reldir, exist_ok=True)
-        print('Created new environment at ' + self.path)
+        print('Created new site at ' + self.path)
 
     def build_site(self):
         page_map = self.map_pages()
         self.write_output(page_map)
 
-    def clean_env(self):
+    def clean_site(self):
         if os.path.isdir(self.output_dir):
             shutil.rmtree(self.output_dir)
         print('Removed output directory from ' + self.path)
