@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
 
 from fantail import __version__
+from fantail.plugins import registry as plugin_registry
 
 class StaticSite(object):
     """
@@ -35,11 +36,13 @@ class StaticSite(object):
 
     def __init__(self, env_dir, debug=False):
         logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
-                            format='%(levelname)s: %(message)s')
+                            format='%(levelname)s: %(module)s: %(message)s')
 
         # Absolute path of this environment
         self.path = os.path.abspath(env_dir)
         logging.debug('Welcome from ' + repr(self))
+
+        plugin_registry.load_plugins()
 
     def __repr__(self):
         return '<StaticSite "{path}">'.format(path=self.path)
@@ -153,13 +156,24 @@ class StaticSite(object):
             # Parse the entry
             with open(input_filename, 'r') as fp:
                 page = email.message_from_string(fp.read())
-                post = page.get_payload()
+                content = page.get_payload()
             template_name = page.get('template', self.base_template_name)
+
+            # Apply filters to the content
+            for filter in plugin_registry.registry.filters:
+                filtered_content = filter(content)
+                # Only update content if the filter returned something
+                if filtered_content:
+                    content = filtered_content
+                else:
+                    logging.warning('Filter `{}` did not return a value'.format(
+                        filter.__name__
+                    ))
 
             # Gather context. The system context always takes precedence.
             # TODO: should it?
             context = dict(page.items())
-            context['content'] = post
+            context['content'] = content
             context.update(self._system_context)
 
             # Pass the entry through the template system and write output
