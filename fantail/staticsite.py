@@ -1,7 +1,6 @@
 import email
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateNotFound
-import logging
 import os
 import shutil
 import subprocess
@@ -30,10 +29,7 @@ class StaticSite(object):
     # System context to add to each template
     _system_context = {'version': __version__}
 
-    def __init__(self, env_dir, debug=False):
-        logging.basicConfig(level=logging.DEBUG if debug else logging.INFO,
-                            format='%(levelname)s: %(module)s: %(message)s')
-
+    def __init__(self, env_dir):
         # Absolute path of this environment
         self.path = os.path.abspath(env_dir)
         logging.debug('Welcome from ' + repr(self))
