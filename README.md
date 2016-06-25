@@ -65,6 +65,10 @@ be printed and any existing output (from a previous run) will not be lost -
 only once the site is successfully generated is it copied over to the `output`
 directory.
 
+See [this gist][example] for an example session.
+
+[example]: https://gist.github.com/sjkingo/d83a24184794db303d1e70998d7bd232
+
 ## Page design
 
 A fantail site is made up of *input pages* that reside in the site's `pages`
