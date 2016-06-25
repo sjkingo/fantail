@@ -1,3 +1,8 @@
+"""
+Command-line interface to the fantail site generator.
+setuptools will create a console script pointing to cli:main
+"""
+
 import argparse
 import logging
 

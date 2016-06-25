@@ -11,19 +11,16 @@ from fantail.plugins import registry as plugin_registry
 
 class StaticSite(object):
     """
-    This class represents a static site environment. An environment
-    contains directories for templates, pages and an output directory.
-    Sensible defaults exist for treating the current working directory
-    as an environment.
+    This class represents a static site to be managed.
     """
 
-    # Absolute path to this site
+    # Absolute path to this site, set in __init__
     path = None
 
-    # Absolute path to templates in this package (not site)
+    # Absolute path to templates in the fantail package (not site)
     pkg_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
 
-    # Base template to use if no template: header is specified in a page.
+    # Base template to use if no template: header is specified in a page
     base_template_name = 'base.html'
 
     # System context to add to each template
