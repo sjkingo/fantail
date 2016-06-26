@@ -70,13 +70,18 @@ class StaticSite(object):
 
         try:
             os.makedirs(self.path) # site root
+            logging.debug('Created site root at ' + self.path)
         except FileExistsError:
             logging.error('Site at {} already exists. Please remove it ' \
                           'before trying again.'.format(self.path))
             exit(2)
 
+        # Create pages and templates
         os.makedirs(self.pages_dir)
+        logging.debug('Created page directory at ' + self.pages_dir)
         shutil.copytree(self.pkg_templates_path, self.template_dir)
+        logging.debug('Created template directory at ' + self.template_dir)
+
         print('Created new site at ' + self.path)
 
     def build_site(self):
