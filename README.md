@@ -26,7 +26,7 @@ and a module to handle uploading a site to GitHub Pages).
 
 ## Requirements
 
-* Python 3.5
+* Python 3.4 or 3.5
 * `jinja2`
 * Optional: `mistune` if you want to enable [Markdown][markdown-syntax] support
 
