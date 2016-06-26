@@ -37,7 +37,7 @@ and a module to handle uploading a site to GitHub Pages).
 Installation is as simple as installing with `pip`:
 
 ```
-$ pip install fantail
+$ pip install -e git+https://github.com/sjkingo/fantail.git
 ```
 
 It is recommended (but not required) you install the `mistune` library to
