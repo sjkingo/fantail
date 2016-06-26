@@ -8,7 +8,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 from fantail import __version__
-from fantail.plugins import registry as plugin_registry
+from fantail.plugins.registry import load_plugins
 
 class StaticSite(object):
     """
@@ -27,12 +27,15 @@ class StaticSite(object):
     # System context to add to each template
     _system_context = {'version': __version__}
 
+    # Plugins registered by load_plugins()
+    plugins = None
+
     def __init__(self, env_dir):
         # Absolute path of this environment
         self.path = os.path.abspath(env_dir)
         logging.debug('Welcome from ' + repr(self))
 
-        plugin_registry.load_plugins()
+        self.plugins = load_plugins()
 
     def __repr__(self):
         return '<StaticSite "{path}">'.format(path=self.path)
@@ -158,7 +161,7 @@ class StaticSite(object):
             template_name = page.get('template', self.base_template_name)
 
             # Apply filters to the content
-            for filter in plugin_registry.registry.filters:
+            for filter in self.plugins.filters:
                 filtered_content = filter(content)
                 # Only update content if the filter returned something
                 if filtered_content:

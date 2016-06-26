@@ -4,10 +4,6 @@ import os
 
 PLUGIN_TYPES = ('filter',)
 
-# Will get populated with a PluginRegistry() instance when load_plugins() is
-# called.
-registry = None
-
 class PluginRegisterException(Exception):
     pass
 
@@ -51,13 +47,8 @@ def load_plugins():
     """
     Imports all plugin modules from the `plugins` package and registers any
     valid register functions within.
-
-    This should only be called once.
     """
 
-    global registry
-    if registry is not None:
-        return
     registry = PluginRegistry()
 
     # Import and register each plugin
@@ -79,3 +70,4 @@ def load_plugins():
                 registry.register(func)
 
     logging.debug('Loaded {} plugin(s)'.format(len(registry)))
+    return registry
