@@ -1,6 +1,7 @@
 from setuptools import find_packages, setup
 
 from fantail import __version__
+from fantail.tests import tests_require
 
 setup(
     name='fantail',
@@ -14,11 +15,7 @@ setup(
     install_requires=[
         'jinja2',
     ],
-    tests_require=[
-        'pytest',
-        'pytest-capturelog',
-        'pytest-cov',
-    ],
+    tests_require=tests_require,
     packages=find_packages(),
     entry_points={
         'console_scripts': [
