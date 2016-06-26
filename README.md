@@ -130,3 +130,9 @@ template loader will look inside here when running.
 
 All features of `jinja2`'s templating language can be used. For more information
 see the excellent [templating documentation](http://jinja.pocoo.org/docs/dev/templates/).
+
+## Plugins
+
+See the [plugins documentation][plugins-doc] for more information.
+
+[plugins-doc]: https://github.com/sjkingo/fantail/blob/master/fantail/plugins/README.md
