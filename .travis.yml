@@ -3,6 +3,7 @@ python:
   - "3.5"
 install:
     - pip install --upgrade pip
+    - pip install jinja2 mistune
 script: ./test.sh
 branches:
     only:
