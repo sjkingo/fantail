@@ -49,6 +49,12 @@ class StaticSite(object):
     def output_dir(self):
         return os.path.join(self.path, 'output')
 
+    def assert_site_exists(self):
+        if not os.path.isdir(self.path):
+            logging.error('Site at ' + self.path + ' does not exist. '
+                          'Please run `fantail init` first.')
+            exit(2)
+
     def init_site(self):
         """
         Creates a new site by creating the required directories and populating
@@ -75,6 +81,7 @@ class StaticSite(object):
         Builds the site and writes output only if the build is successful.
         It is safe to call this over and over.
         """
+        self.assert_site_exists()
         page_map = self._map_pages()
         self._write_output(page_map)
 
@@ -83,6 +90,7 @@ class StaticSite(object):
         Cleans the site by removing the output directory only.
         Does not delete any pages or templates.
         """
+        self.assert_site_exists()
         if os.path.isdir(self.output_dir):
             logging.info('Removed output directory from ' + self.path)
             shutil.rmtree(self.output_dir)
