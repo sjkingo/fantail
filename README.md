@@ -1,5 +1,8 @@
 # fantail
 
+[![Build Status](https://travis-ci.org/sjkingo/fantail.svg?branch=master)](https://travis-ci.org/sjkingo/fantail)
+[![Coverage Status](https://coveralls.io/repos/github/sjkingo/fantail/badge.svg?branch=master)](https://coveralls.io/github/sjkingo/fantail?branch=master)
+
 fantail is (yet another) static site generator written in pure-Python.
 
 It is fast, extensible and requires zero configuration to use.
