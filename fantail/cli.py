@@ -29,7 +29,7 @@ def cmd_build_site(args):
     site = StaticSite(args.site_directory)
     site.build_site()
 
-def parse_args():
+def parse_args(override_args=None):
     parser = argparse.ArgumentParser(description='fantail is a static site generator')
     subparsers = parser.add_subparsers(dest='cmd', help='Subcommands (type subcommand -h to view help)')
 
@@ -60,15 +60,18 @@ def parse_args():
     build_parser.set_defaults(func=cmd_build_site)
 
     # If no subcommand was given, print help and exit
-    args = parser.parse_args()
+    if override_args is None:
+        args = parser.parse_args()
+    else:
+        args = parser.parse_args(override_args)
     if not hasattr(args, 'func'):
         parser.print_help()
         exit(1)
 
     return args
 
-def main():
-    args = parse_args()
+def main(override_args=None):
+    args = parse_args(override_args=override_args)
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO,
                         format='%(levelname)s: %(module)s: %(message)s')
     args.func(args)
