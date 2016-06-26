@@ -1,8 +1,8 @@
 # fantail
 
-fantail is (yet another) static site generator written in Python.
+fantail is (yet another) static site generator written in pure-Python.
 
-See http://getfantail.io/ for a live example.
+It is fast, extensible and requires zero configuration to use.
 
 ## Why?
 
@@ -43,6 +43,15 @@ provide Markdown support:
 ```
 $ pip install mistune
 ```
+
+A full test suite is provided with 100% coverage:
+
+```
+$ ./test.sh
+```
+
+This script will attempt to install the test requirements if needed.
+
 
 ## Usage
 
@@ -105,9 +114,7 @@ generation.
 
 ### Optional headers
 
-```
-template
-```
+`template`
 
 The `template` header may be used to control which template file is used to
 render the current page. By default if this header is missing, the `base.html`
