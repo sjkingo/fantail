@@ -82,6 +82,10 @@ class StaticSite(object):
         shutil.copytree(self.pkg_templates_path, self.template_dir)
         logging.debug('Created template directory at ' + self.template_dir)
 
+        # Create output directory
+        os.makedirs(self.output_dir)
+        logging.debug('Created output directory at ' + self.output_dir)
+
         print('Created new site at ' + self.path)
 
     def build_site(self):
