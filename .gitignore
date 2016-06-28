@@ -4,3 +4,4 @@ fantail-site/
 *.egg-info/
 .cache/
 .coverage
+.tox/
