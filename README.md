@@ -24,6 +24,15 @@ and a module to handle uploading a site to GitHub Pages).
 
 [filter-markdown]: https://github.com/sjkingo/fantail/blob/master/fantail/plugins/plugin_markdown.py
 
+## Features
+
+* Fast, efficient generation of static pages
+* No database required
+* Minimal dependencies
+* Full test suite
+* Extensible through plugins
+* Markdown support (optional)
+
 ## Requirements
 
 * Python 3.4 or 3.5
@@ -50,7 +59,8 @@ $ pip install mistune
 A full test suite is provided with 100% coverage:
 
 ```
-$ ./test.sh
+$ pip install tox
+$ tox
 ```
 
 This script will attempt to install the test requirements if needed.
