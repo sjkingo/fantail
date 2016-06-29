@@ -52,9 +52,9 @@ def mirror_tree(src, dest, exclude=None):
         entries = os.listdir(dest_dir)
         files_in_dest = [f for f in entries if os.path.isfile(os.path.join(dest_dir, f))]
         for f in files_in_dest:
-            if f not in files:
+            if f not in files and f not in exclude:
                 os.remove(os.path.join(dest_dir, f))
         dirs_in_dest = [d for d in entries if os.path.isdir(os.path.join(dest_dir, d))]
         for d in dirs_in_dest:
-            if d not in dirs:
+            if d not in dirs and d not in exclude:
                 shutil.rmtree(os.path.join(dest_dir, d))
