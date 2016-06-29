@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 
 from fantail import __version__
 from fantail.plugins.registry import load_plugins
+from fantail.utils import mirror_tree
 
 class StaticSite(object):
     """
@@ -208,8 +209,7 @@ class StaticSite(object):
             self._generate_pages(page_map, temp_dir)
             # If we get here without an exception, the full site was generated
             # successfully, so move the output files over from the temporary
-            shutil.rmtree(self.output_dir, ignore_errors=True)
-            shutil.copytree(temp_dir, self.output_dir)
+            mirror_tree(temp_dir, self.output_dir, exclude=['.git'])
 
         p = subprocess.run(['tree', self.output_dir], check=True,
                        stdout=subprocess.PIPE)
