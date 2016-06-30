@@ -8,6 +8,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 from fantail import __version__
+from fantail.git import GitRepository
 from fantail.plugins.registry import load_plugins
 from fantail.utils import mirror_tree
 
@@ -18,6 +19,10 @@ class StaticSite(object):
 
     # Absolute path to this site, set in __init__
     path = None
+
+    # GitReposity instance for the site. Will remain as None if git support
+    # is disabled.
+    git_repo = None
 
     # Absolute path to templates in the fantail package (not site)
     pkg_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
@@ -31,11 +36,12 @@ class StaticSite(object):
     # Plugins registered by load_plugins()
     plugins = None
 
-    def __init__(self, env_dir):
+    def __init__(self, env_dir, git_support=True):
         # Absolute path of this environment
         self.path = os.path.abspath(env_dir)
-        logging.debug('Welcome from ' + repr(self))
+        self.git_support = git_support
 
+        logging.debug('Welcome from ' + repr(self))
         self.plugins = load_plugins()
 
     def __repr__(self):
@@ -71,11 +77,13 @@ class StaticSite(object):
 
         try:
             os.makedirs(self.path) # site root
-            logging.debug('Created site root at ' + self.path)
         except FileExistsError:
             logging.error('Site at {} already exists. Please remove it ' \
                           'before trying again.'.format(self.path))
             exit(2)
+        if self.git_support:
+            self.git_repo = GitRepository(self.path)
+        logging.debug('Created site root at ' + self.path)
 
         # Create pages and templates
         os.makedirs(self.pages_dir)
@@ -83,11 +91,12 @@ class StaticSite(object):
         shutil.copytree(self.pkg_templates_path, self.template_dir)
         logging.debug('Created template directory at ' + self.template_dir)
 
-        # Create output directory
-        os.makedirs(self.output_dir)
-        logging.debug('Created output directory at ' + self.output_dir)
-
-        print('Created new site at ' + self.path)
+        g = ''
+        if self.git_support:
+            self.git_repo.git_add_all()
+            self.git_repo.git_commit(msg='Initial fantail site')
+            g = '(git)'
+        logging.info('Created new site at {} {}'.format(self.path, g))
 
     def build_site(self):
         """

@@ -12,7 +12,7 @@ def cmd_init_site(args):
     """
     Creates a new site with default templates.
     """
-    site = StaticSite(args.site_directory)
+    site = StaticSite(args.site_directory, git_support=args.git)
     site.init_site()
 
 def cmd_clean_site(args):
@@ -45,6 +45,8 @@ def parse_args(override_args=None):
     # fantail init
     init_parser = subparsers.add_parser('init', description=cmd_init_site.__doc__)
     add_site_arg(init_parser)
+    init_parser.add_argument('-g', '--git', action='store_true',
+                             help='Enable experimental git support')
     init_parser.set_defaults(func=cmd_init_site)
 
     # fantail clean
