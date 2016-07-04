@@ -1,6 +1,6 @@
 import email
 import logging
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
 from jinja2.exceptions import TemplateNotFound
 import os
 import shutil
@@ -139,11 +139,16 @@ class StaticSite(object):
         for root, dirs, files in os.walk(self.pages_dir):
             prefix = root.replace(self.pages_dir, '')
             for p in files:
-                if p == 'index.txt':
-                    output_filename = '/index.html'
+                if not p.endswith('.txt'):
+                    # other file, don't perform transformation
+                    output_filename = os.path.join(prefix, p)
                 else:
-                    title = os.path.splitext(p)[0]
-                    output_filename = prefix + '/' + title + '/index.html'
+                    # .txt file, transform it
+                    if p == 'index.txt':
+                        output_filename = '/index.html'
+                    else:
+                        title = os.path.splitext(p)[0]
+                        output_filename = prefix + '/' + title + '/index.html'
 
                 input_filename = os.path.join(root, p)
                 output_pages[input_filename] = output_filename
@@ -155,6 +160,30 @@ class StaticSite(object):
                 self.pages_dir, str(output_pages)))
 
         return output_pages
+
+    def _render_page(self, input_filename, output_filename):
+        # Parse the entry
+        with open(input_filename, 'r') as fp:
+            page = email.message_from_string(fp.read())
+            content = page.get_payload()
+        template_name = page.get('template', self.base_template_name)
+
+        # Apply filters to the content
+        for filter in self.plugins.filters:
+            filtered_content = filter(content)
+            # Only update content if the filter returned something
+            if filtered_content:
+                content = filtered_content
+            else:
+                logging.warning('Filter `{}` did not return a value'.format(
+                    filter.__name__
+                ))
+
+        return template_name, page.items(), content
+
+    def _render_static(self, input_filename, output_filename):
+        with open(input_filename, 'r') as fp:
+            return fp.read()
 
     def _generate_pages(self, page_map, output_dir):
         """
@@ -169,41 +198,36 @@ class StaticSite(object):
             # Join the full path name and create intermediate output dirs
             # We skip the first character of the output filename (which is /)
             # or os.path.join won't properly join the paths.
-            path = os.path.join(output_dir, output_filename[1:])
+            if output_filename[0] == '/':
+                output_filename = output_filename[1:]
+            path = os.path.join(output_dir, output_filename)
             leading_dir = os.path.dirname(path)
             os.makedirs(leading_dir, exist_ok=True)
 
-            # Parse the entry
-            with open(input_filename, 'r') as fp:
-                page = email.message_from_string(fp.read())
-                content = page.get_payload()
-            template_name = page.get('template', self.base_template_name)
-
-            # Apply filters to the content
-            for filter in self.plugins.filters:
-                filtered_content = filter(content)
-                # Only update content if the filter returned something
-                if filtered_content:
-                    content = filtered_content
-                else:
-                    logging.warning('Filter `{}` did not return a value'.format(
-                        filter.__name__
-                    ))
+            if input_filename.endswith('.txt'):
+                template_name, headers, output = self._render_page(input_filename, path)
+            else:
+                output = self._render_static(input_filename, path)
+                template_name = None # no template, will render content only
 
             # Gather context. The system context always takes precedence.
             # TODO: should it?
-            context = dict(page.items())
-            context['content'] = content
+            context = dict(headers)
+            context['content'] = output
             context.update(self._system_context)
 
             # Pass the entry through the template system and write output
-            try:
-                template = env.get_template(template_name)
-            except TemplateNotFound as e:
-                logging.error('{0}: Template not found: {1}'.format(
-                    input_filename, template_name
-                ))
-                exit(3)
+            if template_name:
+                try:
+                    template = env.get_template(template_name)
+                except TemplateNotFound as e:
+                    logging.error('{0}: Template not found: {1}'.format(
+                        input_filename, template_name
+                    ))
+                    exit(3)
+            else:
+                template = Template('{{ content }}')
+
             with open(path, 'w') as fp:
                 fp.write(template.render(context))
                 fp.write(os.linesep)
