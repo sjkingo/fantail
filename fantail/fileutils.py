@@ -1,3 +1,7 @@
+"""
+File-related utility functions.
+"""
+
 import filecmp
 import os
 import shutil
@@ -58,3 +62,41 @@ def mirror_tree(src, dest, exclude=None):
         for d in dirs_in_dest:
             if d not in dirs and d not in exclude:
                 shutil.rmtree(os.path.join(dest_dir, d))
+
+def map_input_output_files(input_dir):
+    """
+    Creates a dictionary of input_file -> output_file of each page in the
+    given directory. The directory structure is maintained with each
+    subpage being placed in its own directory and named index.html.
+
+    For example:
+
+    /pages
+    * index.txt -> /output/index.html
+    * /blog
+       * hello-world.txt -> /output/blog/hello-world/index.html
+       * how-to-use-fantail.txt -> /output/blog/how-to-use-fantail/index.html
+
+    Files not ending in .txt are considered static and will be written as is.
+    """
+
+    output_pages = {}
+
+    for root, dirs, files in os.walk(input_dir):
+        prefix = root.replace(input_dir, '')
+        for p in files:
+            if not p.endswith('.txt'):
+                # other file, don't perform transformation
+                output_filename = os.path.join(prefix, p)
+            else:
+                # .txt file, transform it
+                if p == 'index.txt':
+                    output_filename = '/index.html'
+                else:
+                    title = os.path.splitext(p)[0]
+                    output_filename = prefix + '/' + title + '/index.html'
+
+            input_filename = os.path.join(root, p)
+            output_pages[input_filename] = output_filename
+
+    return output_pages

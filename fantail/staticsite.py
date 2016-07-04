@@ -10,7 +10,7 @@ from tempfile import TemporaryDirectory
 from fantail import __version__
 from fantail.git import GitRepository
 from fantail.plugins.registry import load_plugins
-from fantail.utils import mirror_tree
+from fantail.fileutils import *
 
 class StaticSite(object):
     """
@@ -103,8 +103,16 @@ class StaticSite(object):
         Builds the site and writes output only if the build is successful.
         It is safe to call this over and over.
         """
+
         self.assert_site_exists()
-        page_map = self._map_pages()
+
+        page_map = map_input_output_files(self.pages_dir)
+        if len(page_map) == 0:
+            logging.warning('No pages to generate from ' + self.pages_dir)
+        else:
+            logging.debug('Will generate the following pages from {0}: {1}'.format(
+                self.pages_dir, str(page_map)))
+
         self._write_output(page_map)
 
     def clean_site(self):
@@ -118,48 +126,6 @@ class StaticSite(object):
             shutil.rmtree(self.output_dir)
         else:
             logging.info('Nothing to do.')
-
-    def _map_pages(self):
-        """
-        Creates a dictionary of input_file -> output_file of each page in the
-        pages directory. The directory structure is maintained with each
-        subpage being placed in its own directory and named index.html.
-
-        For example:
-
-        /pages
-        * index.txt -> /output/index.html
-        * /blog
-           * hello-world.txt -> /output/blog/hello-world/index.html
-           * how-to-use-fantail.txt -> /output/blog/how-to-use-fantail/index.html
-        """
-
-        output_pages = {}
-
-        for root, dirs, files in os.walk(self.pages_dir):
-            prefix = root.replace(self.pages_dir, '')
-            for p in files:
-                if not p.endswith('.txt'):
-                    # other file, don't perform transformation
-                    output_filename = os.path.join(prefix, p)
-                else:
-                    # .txt file, transform it
-                    if p == 'index.txt':
-                        output_filename = '/index.html'
-                    else:
-                        title = os.path.splitext(p)[0]
-                        output_filename = prefix + '/' + title + '/index.html'
-
-                input_filename = os.path.join(root, p)
-                output_pages[input_filename] = output_filename
-
-        if len(output_pages) == 0:
-            logging.warning('No pages to generate from ' + self.pages_dir)
-        else:
-            logging.debug('Will generate the following pages from {0}: {1}'.format(
-                self.pages_dir, str(output_pages)))
-
-        return output_pages
 
     def _render_page(self, input_filename, output_filename):
         # Parse the entry
@@ -209,6 +175,7 @@ class StaticSite(object):
             else:
                 output = self._render_static(input_filename, path)
                 template_name = None # no template, will render content only
+                headers = {}
 
             # Gather context. The system context always takes precedence.
             # TODO: should it?
