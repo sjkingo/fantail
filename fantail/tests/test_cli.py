@@ -29,15 +29,14 @@ def test_cli_help(capsys):
     stdout, stderr = capsys.readouterr()
     assert stdout.startswith('usage:')
 
-def test_cli_init(capsys, tmpdir):
+def test_cli_init(capsys, tmpdir, caplog):
     """
     $ fantail init
     """
     path = str(tmpdir.join('test-site'))
     args = ['init', path]
     fantail_main(args)
-    stdout, stderr = capsys.readouterr()
-    assert stdout == 'Created new site at ' + path + linesep
+    assert 'Created new site at ' + path in caplog.text()
 
 def test_cli_init_existing(capsys, tmpdir, caplog):
     """
@@ -46,7 +45,7 @@ def test_cli_init_existing(capsys, tmpdir, caplog):
     """
     path = str(tmpdir.join('test-site'))
     args = ['init', path]
-    test_cli_init(capsys, tmpdir) # succeeds
+    test_cli_init(capsys, tmpdir, caplog) # succeeds
     with pytest.raises(SystemExit):
         fantail_main(args) # fails
     assert 'Site at ' + path + ' already exists.' in caplog.text()
