@@ -19,7 +19,6 @@ def test_init(tmpdir, caplog):
     # Verify directories have been created
     assert path == site.path
     assert os.path.isdir(path)
-    assert os.path.isdir(os.path.join(path, 'output', '.git'))
 
     assert 'Welcome from' in caplog.text()
     assert str(repr(site)) == '<StaticSite "' + path + '">'
