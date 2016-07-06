@@ -82,6 +82,8 @@ class StaticSite(object):
         logging.debug('Created page directory at ' + self.pages_dir)
         shutil.copytree(self.pkg_templates_path, self.template_dir)
         logging.debug('Created template directory at ' + self.template_dir)
+        os.makedirs(self.output_dir)
+        logging.debug('Created output directory at ' + self.output_dir)
         logging.info('Created new site at ' + self.path)
 
     def build_site(self):
