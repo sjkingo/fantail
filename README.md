@@ -18,11 +18,10 @@ in pure-Python. It requires no configuration or complex setup: simply point
 it at a directory (the "site" source), add some content and 3 commands will
 have a static site generated ready to upload to your favourite hosting site.
 
-It is extensible through the use of plugins: some are provided to extend the
-default functionality (specifically a [Markdown filter][filter-markdown],
-and a module to handle uploading a site to GitHub Pages).
+It is extensible through the use of plugins that can be used to extend the
+default functionality:
 
-[filter-markdown]: https://github.com/sjkingo/fantail/blob/master/fantail/plugins/plugin_markdown.py
+* a [Markdown filter][https://github.com/sjkingo/fantail/blob/master/fantail/plugins/plugin_markdown.py]
 
 ## Features
 

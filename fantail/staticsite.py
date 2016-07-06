@@ -8,7 +8,6 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 from fantail import __version__
-from fantail.git import GitRepository
 from fantail.plugins.registry import load_plugins
 from fantail.fileutils import *
 
@@ -19,10 +18,6 @@ class StaticSite(object):
 
     # Absolute path to this site, set in __init__
     path = None
-
-    # GitReposity instance for the site. Will remain as None if git support
-    # is disabled.
-    git_repo = None
 
     # Absolute path to templates in the fantail package (not site)
     pkg_templates_path = os.path.join(os.path.dirname(__file__), 'templates')
@@ -36,10 +31,9 @@ class StaticSite(object):
     # Plugins registered by load_plugins()
     plugins = None
 
-    def __init__(self, env_dir, git_support=True):
+    def __init__(self, env_dir):
         # Absolute path of this environment
         self.path = os.path.abspath(env_dir)
-        self.git_support = git_support
 
         logging.debug('Welcome from ' + repr(self))
         self.plugins = load_plugins()
@@ -81,8 +75,6 @@ class StaticSite(object):
             logging.error('Site at {} already exists. Please remove it ' \
                           'before trying again.'.format(self.path))
             exit(2)
-        if self.git_support:
-            self.git_repo = GitRepository(self.path)
         logging.debug('Created site root at ' + self.path)
 
         # Create pages and templates
@@ -90,13 +82,7 @@ class StaticSite(object):
         logging.debug('Created page directory at ' + self.pages_dir)
         shutil.copytree(self.pkg_templates_path, self.template_dir)
         logging.debug('Created template directory at ' + self.template_dir)
-
-        g = ''
-        if self.git_support:
-            self.git_repo.git_add_all()
-            self.git_repo.git_commit(msg='Initial fantail site')
-            g = '(git)'
-        logging.info('Created new site at {} {}'.format(self.path, g))
+        logging.info('Created new site at ' + self.path)
 
     def build_site(self):
         """
